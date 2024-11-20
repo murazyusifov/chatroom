@@ -4,19 +4,18 @@ import threading
 
 class ChatClient :
     def __init__(self) :
-        self.client_sock = None                    # the client socket object to be created
-        self.username = None                       # to store the username when logged in
-        self.listener_event = threading.Event()    # the event to signal the listener thread to stop
-        self.listener_thread = None                # the listener thread object
-        self.current_room = None                   # to keep track of the current room the client is in
+        self.client_sock = None                   # the client socket object to be created
+        self.username = None                      # to store the username when logged in
+        self.listener_event = threading.Event()   # the event to signal the listener thread to stop
+        self.listener_thread = None               # the listener thread object
 
-    # used to create a socket object and connect the client to the server
-    # creates a new socket object using the AF_INET address family (IPv4) and the SOCK_STREAM type (TCP)
-    # attempts to connect to the server at localhost on port 3169
-    # if the connection is successful, the method prints a confirmation message
-    # if an error occurs during the connection (the server is unavailable),
-    # the method catches the exception, prints an error message, closes the socket and exits the program
     def create_socket(self) :
+        """Establishes a socket connection to the server
+            Creates a socket object using the AF_INET (IPv4) address family and SOCK_STREAM (TCP) type
+            Attempts to connect to the server at localhost on port 3169
+            If the connection succeeds, a confirmation message is printed
+            If an error occurs (e.g., server unavailable), it handles the exception, closes the socket, and exits the program"""
+
         self.client_sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         server_address = ('localhost', 3169)
         try :
@@ -28,12 +27,13 @@ class ChatClient :
             exit(1)
         return self.client_sock
 
-    # allows a new user to register with the server by sending their credentials
-    # prompts the user for a username and a password
-    # creates an action dictionary containing the registration request, and sends it to the server in JSON format
-    # then waits for the server response, which is received and printed
-    # returns the response as a Python dictionary
+
     def register(self) :
+        """Registers a new user with the server by sending their username and password
+Prompts the user for input, then creates an action dictionary containing the registration details
+Sends this data to the server in JSON format and waits for the server's response
+Returns the server response as a Python dictionary"""
+
         username = input("Enter a username to register : ")
         password = input("Enter a password : ")
         action = {"action" : "register", "username" : username, "password" : password}
@@ -47,12 +47,12 @@ class ChatClient :
             self.client_sock.close()
             exit(1)
 
-    # used to authenticate an existing user by sending their username and password to the server
-    # prompts the user for their login credentials
-    # creates an action dictionary containing the login request, and sends it to the server in JSON format
-    # the server response is then received and printed
-    # returns the response as a Python dictionary
+
     def login(self) :
+        """Authenticates an existing user by verifying their username and password
+Prompts the user to input their login credentials and sends them to the server in a JSON-encoded dictionary
+Waits for the server's response, which is then printed
+Returns the server response as a Python dictionary"""
         username = input("Enter your username : ")
         password = input("Enter your password : ")
         action = {"action" : "login", "username" : username, "password" : password}
@@ -66,11 +66,12 @@ class ChatClient :
             self.client_sock.close()
             exit(1)
 
-    # requests a list of available chat rooms from the server
-    # sends an action dictionary with the action type set to "list"
-    # after sending the request, the method waits for the server response
-    # then decodes the response, extracts the room information and prints out the available rooms
+
     def list_rooms(self) :
+        """Requests a list of available chat rooms from the server
+Sends a request to the server using a JSON-encoded dictionary with the action type set to 'list'
+Waits for the server response, which includes a list of rooms
+Decodes and prints the room details"""
         action = {"action" : "list"}
         try :
             self.client_sock.send(json.dumps(action).encode('utf-8'))
@@ -85,11 +86,11 @@ class ChatClient :
             self.client_sock.close()
             exit(1)
 
-    # allows the user to create a new chat room
-    # prompts the user to enter the room name, description and password
-    # sends this data to the server in a JSON-encoded dictionary with the action type set to "create_room"
-    # the server response is then received and printed
+
     def create_room(self) :
+        """Creates a new chat room by collecting the room name, description, and password
+Sends this data to the server in a JSON-encoded dictionary with the action type set to 'create_room'
+Waits for the server's response and prints it"""
         room_name = input("Enter the name of the new room : ")
         room_description = input("Enter the description of the new room : ")
         room_password = input("Enter the password of the new room : ")
@@ -104,11 +105,12 @@ class ChatClient :
             self.client_sock.close()
             exit(1)
 
-    # allows the user to delete a chat room by its ID
-    # prompts the user for the room ID to be deleted
-    # sends the ID to the server in a JSON-encoded dictionary with the action type set to "delete_room"
-    # the server response, indicating the success or failure of the deletion, is then printed
+
     def delete_room(self) :
+        """Deletes a chat room using its room ID
+Prompts the user to input the room ID they wish to delete
+Sends the room ID to the server in a JSON-encoded dictionary with the action type set to 'delete_room'
+Waits for the server's response and prints whether the deletion was successful or not"""
         room_ID = input("Enter the ID of the room to delete : ")
         action = {"action" : "delete_room", "room_ID" : room_ID}
         try :
@@ -120,12 +122,11 @@ class ChatClient :
             self.client_sock.close()
             exit(1)
 
-    # allows the user to join an existing chat room by providing the room ID and password
-    # prompts the user to input the room ID and password
-    # then it sends this information to the server in a JSON-encoded dictionary with the action type set to "join_room"
-    # after sending the request, the method waits for the server response,
-    # which is expected to be a message indicating whether the user was successfully added to the room or not
+
     def join_room(self) :
+        """Allows the user to join an existing chat room by entering the room ID and password
+Prompts the user for these inputs and sends the data to the server in a JSON-encoded dictionary with the action type set to 'join_room'
+Waits for the server's response, which indicates whether the user was successfully added to the room"""
         room_ID = input("Enter a room ID to join : ")
         room_password = input("Enter the room password to join : ")
         action = {"action" : "join_room", "room_ID" : room_ID, "room_password" : room_password}
@@ -139,11 +140,10 @@ class ChatClient :
             self.client_sock.close()
             exit(1)
 
-    # continuously listens for incoming messages from the server in a non-blocking manner
-    # operates within a while loop, which keeps running as long as the listener_event is not set
-    # sets a timeout of 1 second using self.client_sock.settimeout(1.0)
-    # which means the client will attempt to receive data, but will not block indefinitely if no message is received
     def listen_for_messages(self) :
+        """Listens for incoming messages from the server in a non-blocking manner
+The listener runs in a loop as long as the listener_event is not set, with a timeout of 1 second
+If a message is received, it is printed; otherwise, the loop continues without blocking"""
         while not self.listener_event.is_set() :
             try :
                 self.client_sock.settimeout(1.0)
@@ -155,18 +155,12 @@ class ChatClient :
             except socket.timeout :
                 if self.listener_event.is_set() :
                     break
-            except (socket.error, ConnectionResetError) as exception :
-                print(f"Error receiving the message : {exception}")
-                self.client_sock.close()
-                exit(1)
 
-    # manages the chatting session
-    # starts by clearing the listener_event and launching a listener thread to handle incoming messages
-    # the user can then input messages in a loop, if the user types "quit",
-    # the method sends a "disconnect" action to the server and prints a message that the user has left the room
-    # then sets the listener_event to stop the listener thread and waits for it to finish with join()
-    # finally, the method resets the current_room and exits the loop, returning the user to the main menu
+
     def chat(self) :
+        """Manages the chatting session by starting the listener thread and enabling the user to send messages
+If the user types 'quit', a disconnect action is sent, the listener thread is stopped, and the user exits the chat
+Otherwise, the message is sent to the server"""
         self.listener_event.clear()
         self.listener_thread = threading.Thread(target = self.listen_for_messages, daemon = True)
         self.listener_thread.start()
@@ -175,11 +169,8 @@ class ChatClient :
             message = input()
             if message.lower() == 'quit' :
                 action = {"action" : "disconnect"}
-                try :
-                    self.client_sock.send(json.dumps(action).encode('utf-8'))
-                    print("You left the room...")
-                except (socket.error, ConnectionResetError) as exception :
-                    print(f"Error disconnecting the user from the room : {exception}")
+                self.client_sock.send(json.dumps(action).encode('utf-8'))
+                print("You left the room...")
 
                 # stop the listener thread by setting the event
                 self.listener_event.set()
@@ -187,21 +178,15 @@ class ChatClient :
                 # wait for the listener thread to finish
                 self.listener_thread.join()
 
-                # return to the main menu after quitting the chatroom
-                self.current_room = None
                 break
+            else :
+                action = {"action" : "send_message", "message" : message}
+                self.client_sock.send(json.dumps(action).encode('utf-8'))
 
-    # controls the main flow of the program, guiding the user through registration or login
-    # then provides a command prompt for the user to interact with the chatroom system
-    # Registration/Authentication : the user can choose to register (r) or log in (l)
-    # Upon successful registration or login (code 200), the username and isAdmin variables are set
-    # create : only admins can create new rooms
-    # delete : only admins can delete rooms
-    # list : view a list of available rooms
-    # join : join a room (if successful, the user enters the chatting session)
-    # exit : closes the connection and exits the loop
-    # permissions : non-admin users are denied access to room creation and deletion with a "Permission Denied" message
     def main(self) :
+        """Handles the main flow of the program by guiding the user through registration, login, and interacting with the chat system
+If logged in, the user can create, delete, list, or join rooms
+Admin privileges are required to create or delete rooms, and regular users are denied access to these actions"""
         isAdmin = False
 
         while True :
