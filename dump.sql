@@ -1,18 +1,23 @@
-CREATE DATABASE chatroom_db;
+drop table if exists users;
 
-USE chatroom_db;
-
-CREATE TABLE rooms (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    room_name VARCHAR(100) NOT NULL,
-    room_password VARCHAR(100),
-    room_type ENUM('public', 'private') NOT NULL
+create table users (
+user_ID int auto_increment primary key,
+username varchar(60) not null,
+password varchar(60) not null
 );
 
-CREATE TABLE users (
-    username VARCHAR(50) PRIMARY KEY,
-    password VARCHAR(100) NOT NULL,
-    role_type ENUM('admin', 'user') NOT NULL
+insert into users (username, password)
+values ("admin", "admin123");
+
+drop table if exists rooms;
+
+create table rooms (
+room_ID int auto_increment primary key,
+room_name varchar(60) not null,
+room_description varchar(240),
+room_password varchar(60),
+created_at timestamp default current_timestamp
 );
 
-insert into users(username, password, role_type) values("admin","admin","admin");
+insert into rooms (room_name, room_description, room_password) values
+("test", "Welcome to our Chatroom!", "test5");
