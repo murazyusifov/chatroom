@@ -1,10 +1,9 @@
 import mysql.connector
 
-"""Creates a connection to the MySQL database using the mysql.connector library.
-It connects to the specified database using the provided host, user, password, and database credentials.
-In this case, it connects to 'localhost', with 'root' as both the username and password, and the 'chatroom' database.
-The connection object returned allows interaction with the database."""
-
+# establishes a connection to the MySQL database using the mysql.connector library
+# connects to the database specified by the host, user, password and database parameters
+# in this case -- localhost, root, root and chatroom
+# the connection object returned can be used to interact with the database
 def get_db_connection() :
     return mysql.connector.connect (
         host = "localhost",
@@ -13,11 +12,10 @@ def get_db_connection() :
         database = "chatroom"
     )
 
-"""Handles the registration of a new user in the 'users' table of the 'chatroom' database.
-It accepts a username and password, then inserts them into the table.
-If the username already exists (causing a duplicate entry), the function catches the error and returns False.
-If the registration is successful, it returns True."""
-
+# responsible for registering a new user in the users table of the chatroom database
+# takes a username and a password as inputs and attempts to insert them into the users table
+# if the username is already in use (a duplicate entry), the function will catch the error and return False
+# Otherwise, the user is successfully registered and the function returns True
 def register_user(username, password) :
     conn = get_db_connection()
     cursor = conn.cursor()
@@ -31,10 +29,9 @@ def register_user(username, password) :
         cursor.close()
         conn.close()
 
-"""Verifies if a user exists in the database by checking the provided username and password.
-Performs a SELECT query on the 'users' table and returns True if a matching record is found.
-If no match is found, it returns False, indicating failed authentication."""
-
+# checks if a user exists in the database with the provided username and password
+# performs a SELECT query on the users table and returns True if a matching record is found
+# if no such record exists, the function returns False, indicating that the authentication has failed
 def authenticate_user(username, password) :
     conn = get_db_connection()
     cursor = conn.cursor()
