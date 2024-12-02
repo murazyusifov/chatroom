@@ -39,7 +39,8 @@ class ChatClient :
         try :
             self.client_sock.send(json.dumps(action).encode('utf-8'))
             register_response = self.client_sock.recv(1024).decode('utf-8')
-            print("Registration Response : ", register_response)
+            register_data = json.loads(register_response)
+            print(register_data["message"])
             return json.loads(register_response)
         except (socket.error, ConnectionResetError) as exception :
             print(f"Error registering the user : {exception}")
@@ -58,7 +59,8 @@ class ChatClient :
         try :
             self.client_sock.send(json.dumps(action).encode('utf-8'))
             login_response = self.client_sock.recv(1024).decode('utf-8')
-            print("Authentication Response : ", login_response)
+            login_data = json.loads(login_response)
+            print(login_data["message"])
             return json.loads(login_response)
         except (socket.error, ConnectionResetError) as exception :
             print(f"Error authenticating the user : {exception}")
@@ -131,7 +133,8 @@ class ChatClient :
         try :
             self.client_sock.send(json.dumps(action).encode('utf-8'))
             join_response = self.client_sock.recv(1024).decode('utf-8')
-            print("Join Room Response : ", join_response)
+            join_data = json.loads(join_response)
+            print(join_data["message"])
             return json.loads(join_response)
         except (socket.error, ConnectionResetError) as exception :
             print(f"Error joining the room : {exception}")
@@ -184,7 +187,8 @@ class ChatClient :
 
                 break
             else :
-                action = {"action" : "send_message", "message" : message}
+                action = {"action" : "send_message", "username" : self.username, "message" : message}
+                print(f"{self.username} >> {action["message"]}")
                 self.client_sock.send(json.dumps(action).encode('utf-8'))
 
     # controls the main flow of the program, guiding the user through registration or login
@@ -215,7 +219,7 @@ class ChatClient :
                 else :
                     print("Invalid Choice!")
             else :
-                command = input("\nEnter a command (list, create, delete, join, exit) : ").lower()
+                command = input("\nEnter a command\n\n --list--\n --create--\n --delete--\n --join--\n --exit--\n\n ").lower()
                 if command == 'create' :
                     if isAdmin :
                         self.create_room()

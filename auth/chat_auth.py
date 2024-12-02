@@ -32,11 +32,30 @@ def register_user(username, password) :
 # checks if a user exists in the database with the provided username and password
 # performs a SELECT query on the users table and returns True if a matching record is found
 # if no such record exists, the function returns False, indicating that the authentication has failed
-def authenticate_user(username, password) :
-    conn = get_db_connection()
-    cursor = conn.cursor()
-    cursor.execute("SELECT * FROM users WHERE username = %s AND password = %s", (username, password))
-    result = cursor.fetchone()
-    cursor.close()
-    conn.close()
-    return result is not None
+def authenticate_user(username, password):
+    try:
+        # Establish the connection to the database
+        conn = get_db_connection()
+        cursor = conn.cursor(dictionary=True)
+
+        # Execute the query to find the user with the provided username and password
+        cursor.execute("SELECT * FROM users WHERE username = %s AND password = %s", (username, password))
+
+        # Fetch a single result (user) from the query
+        result = cursor.fetchone()
+
+        # Close the cursor and connection after the operation
+        cursor.close()
+        conn.close()
+
+        # Return True if the user was found, otherwise False
+        return result is not None
+
+    except mysql.connector.Error as err:
+        # Log the MySQL error (for debugging purposes)
+        print(f"MySQL error during authentication: {err}")
+        return False
+    except Exception as e:
+        # Log any unexpected errors
+        print(f"Unexpected error during authentication: {e}")
+        return False

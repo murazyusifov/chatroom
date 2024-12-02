@@ -1,0 +1,13 @@
+muraz >> salam
+muraz >> sala
+test >> salam\
+test >> 
+test >> 
+muraz >> salam
+muraz >> sala
+test >> salam
+muraz >> eleykim salam
+test >> salam
+test disconnected...
+muraz disconnected...
+muraz left the room...

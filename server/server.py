@@ -59,7 +59,7 @@ def broadcast_message(username, message, room_ID) :
 # if failure, the method sends an error message with a 400 code
 def handle_registration(client_socket, username, password) :
     if register_user(username, password) :
-        client_socket.send(json.dumps({"code" : 200, "username" : username, "message" : "Registration Successful!"}).encode())
+        client_socket.send(json.dumps({"code" : 200, "username" : username, "message" : "Registered Successfully!"}).encode())
     else :
         client_socket.send(json.dumps({"code" : 400, "message" : "Registration Failed!"}).encode())
 
@@ -208,11 +208,13 @@ def handle_client(client_socket) :
             elif data["action"] == "send_message" :
                 message = data["message"]
                 if room_ID :
-                    formatted_message = f"{username} >> {message}"
+                    formatted_message = f"{data["username"]} >> {message}"
                     broadcast_message(username, formatted_message, room_ID)
 
             elif data["action"] == "disconnect" :
                 print(f"{username} disconnected...")
+                quit_message = f"{username} left the room..."
+                broadcast_message(username,quit_message,room_ID)
                 with clients_lock :
                     if client_socket in clients :
                         del clients[client_socket]
