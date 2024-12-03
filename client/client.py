@@ -33,8 +33,8 @@ class ChatClient :
     # then waits for the server response, which is received and printed
     # returns the response as a Python dictionary
     def register(self) :
-        username = input("Enter a username to register : ")
-        password = input("Enter a password : ")
+        username = input("Username : ")
+        password = input("Password : ")
         action = {"action" : "register", "username" : username, "password" : password}
         try :
             self.client_sock.send(json.dumps(action).encode('utf-8'))
@@ -53,8 +53,8 @@ class ChatClient :
     # the server response is then received and printed
     # returns the response as a Python dictionary
     def login(self) :
-        username = input("Enter your username : ")
-        password = input("Enter your password : ")
+        username = input("Username : ")
+        password = input("Password : ")
         action = {"action" : "login", "username" : username, "password" : password}
         try :
             self.client_sock.send(json.dumps(action).encode('utf-8'))
@@ -91,7 +91,7 @@ class ChatClient :
     # sends this data to the server in a JSON-encoded dictionary with the action type set to "create_room"
     # the server response is then received and printed
     def create_room(self) :
-        room_name = input("Enter the name of the new room : ")
+        room_name = input("Enter room name : ")
         room_description = input("Enter the description of the new room : ")
         room_password = input("Enter the password of the new room : ")
         action = {"action" : "create_room", "room_name" : room_name,
@@ -219,7 +219,7 @@ class ChatClient :
                 else :
                     print("Invalid Choice!")
             else :
-                command = input("\nEnter a command\n\n --list--\n --create--\n --delete--\n --join--\n --exit--\n\n ").lower()
+                command = input("\nEnter a command\n\n1.List\n2.Create\n3.Delete\n4.Join\n5.Exit\n\n").lower()
                 if command == 'create' :
                     if isAdmin :
                         self.create_room()
