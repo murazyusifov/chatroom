@@ -1,6 +1,9 @@
 import socket
 import json
 import threading
+import keyboard
+import time
+
 
 class ChatClient :
     def __init__(self) :
@@ -11,13 +14,13 @@ class ChatClient :
 
     # used to create a socket object and connect the client to the server
     # creates a new socket object using the AF_INET address family (IPv4) and the SOCK_STREAM type (TCP)
-    # attempts to connect to the server at localhost on port 3169
+    # attempts to connect to the server at localhost on port 7171
     # if the connection is successful, the method prints a confirmation message
     # if an error occurs during the connection (the server is unavailable),
     # the method catches the exception, prints an error message, closes the socket and exits the program
     def create_socket(self) :
         self.client_sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        server_address = ('localhost', 3169)
+        server_address = ('localhost', 7171)
         try :
             self.client_sock.connect(server_address)
             print("Connected to the server...")
@@ -153,14 +156,17 @@ class ChatClient :
                 if response == "" :
                     break
                 else :
-                    print(response)
+                    print(f"\n{response}\n", end='', flush=True)
+
+                    # Ensure the input prompt is on the same line after printing the message
+                    print("you > ", end="", flush=True)  # Reprint prompt without moving to the next line
             except socket.timeout :
                 if self.listener_event.is_set() :
                     break
             except (socket.error, ConnectionResetError) as exception :
                 print(f"Error : {exception}")
                 return
-
+            
     # manages the chatting session
     # starts by clearing the listener_event and launching a listener thread to handle incoming messages
     # the user can then input messages in a loop, if the user types "quit",
@@ -171,9 +177,10 @@ class ChatClient :
         self.listener_event.clear()
         self.listener_thread = threading.Thread(target = self.listen_for_messages, daemon = True)
         self.listener_thread.start()
-
+        
         while True :
-            message = input()
+            message = input("you > ")
+            print()
             if message.lower() == 'quit' :
                 action = {"action" : "disconnect"}
                 self.client_sock.send(json.dumps(action).encode('utf-8'))
@@ -188,7 +195,6 @@ class ChatClient :
                 break
             else :
                 action = {"action" : "send_message", "username" : self.username, "message" : message}
-                print(f"{self.username} >> {action["message"]}")
                 self.client_sock.send(json.dumps(action).encode('utf-8'))
 
     # controls the main flow of the program, guiding the user through registration or login

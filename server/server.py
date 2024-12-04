@@ -9,7 +9,7 @@ clients = {}  # stores the clients and their corresponding info
 clients_lock = threading.Lock()
 room_last_activity = {}  # tracks the last activity time for each room
 is_running = True  # a global flag to control the server state
-ROOM_TIMEOUT = 30  # a timeout in seconds for inactivity
+ROOM_TIMEOUT = 3600  # a timeout in seconds for inactivity
 
 # creates a TCP socket, binds it to the specified port, and starts listening for incoming connections
 # configured to reuse the address (SO_REUSEADDR)
@@ -213,8 +213,8 @@ def handle_client(client_socket) :
 
             elif data["action"] == "disconnect" :
                 print(f"{username} disconnected...")
-                quit_message = f"{username} left the room..."
-                broadcast_message(username,quit_message,room_ID)
+                # quit_message = f"{username} left the room..."
+                # broadcast_message(username,quit_message,room_ID)
                 with clients_lock :
                     if client_socket in clients :
                         del clients[client_socket]
@@ -252,14 +252,14 @@ def check_inactivity() :
 
 # starts the server, accepting client connections and handling them in separate threads
 # it also monitors for inactivity and allows the server to be shut down
-# the server socket is created on port 3169, and the server begins listening for incoming client connections
+# the server socket is created on port 7171, and the server begins listening for incoming client connections
 # client handling : a new thread is spawned for each client, calling handle_client to process their requests
 # another thread runs check_inactivity to manage the room activity
 # the server listens for a "shutdown" command, when issued --
 # closes the server socket, notifies all connected clients, disconnects them and clears the clients dictionary
 def start_server() :
     global is_running
-    port = 3169
+    port = 7171
     server_socket = create_socket(port)
     print("Server started, waiting for connections...")
 
